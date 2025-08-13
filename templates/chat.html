@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">AI Chatbot</h1>
+        
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-md mb-6">
+            <p class="font-semibold">Initial Prompt:</p>
+            <p>{{ initial_prompt }}</p>
+        </div>
+
+        <div id="chatbox" class="h-96 overflow-y-auto border border-gray-300 rounded-lg p-4 mb-6 bg-gray-50 flex flex-col space-y-4">
+            </div>
+
+        <div class="flex space-x-4">
+            <input type="text" id="user-input" placeholder="Type your message..."
+                   class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button id="send-button"
+                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Send
+            </button>
+        </div>
+
+        <button id="reset-prompt-button"
+                class="mt-4 w-full px-6 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            Reset Chat
+        </button>
+
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const resetPromptButton = document.getElementById('reset-prompt-button');
+
+        // Function to add a message to the chatbox
+        function addMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('p-3', 'rounded-lg', 'max-w-[75%]', 'whitespace-pre-wrap');
+            
+            if (sender === 'user') {
+                messageElement.classList.add('bg-blue-500', 'text-white', 'self-end');
+                messageElement.textContent = message;
+            } else {
+                messageElement.classList.add('bg-gray-200', 'text-gray-800', 'self-start');
+                messageElement.textContent = message;
+            }
+            chatbox.appendChild(messageElement);
+            chatbox.scrollTop = chatbox.scrollHeight; // Auto-scroll to the bottom
+        }
+
+        // Function to send message to backend
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            addMessage('user', message);
+            userInput.value = ''; // Clear input field
+
+            try {
+                sendButton.disabled = true;
+                sendButton.textContent = 'Sending...';
+
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                addMessage('ai', data.response);
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('ai', 'Error: Could not get a response. Please try again.');
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Event listener for the new reset button
+        resetPromptButton.addEventListener('click', async () => {
+            if (confirm('Are you sure you want to reset the chat and prompt?')) {
+                try {
+                    const response = await fetch('/reset_prompt', {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        window.location.href = '/initial_setup';
+                    } else {
+                        alert('Failed to reset the prompt.');
+                    }
+                } catch (error) {
+                    console.error('Error resetting prompt:', error);
+                    alert('An error occurred while trying to reset the prompt.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

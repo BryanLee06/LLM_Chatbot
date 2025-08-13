@@ -1,0 +1,61 @@
+<!-- templates/initial_prompt.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Set Chatbot Persona</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .setup-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            min-height: 150px;
+            resize: vertical;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <h1>Set Your Chatbot's Persona/Setting</h1>
+        <p>This will define how your chatbot behaves throughout the conversation.</p>
+        <form method="POST">
+            <textarea name="initial_prompt" placeholder="E.g., 'You are a sarcastic medieval butler who loves to talk about ancient history.'" required></textarea>
+            <button type="submit">Start Chat</button>
+        </form>
+    </div>
+</body>
+</html>
